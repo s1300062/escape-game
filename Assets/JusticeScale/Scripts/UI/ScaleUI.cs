@@ -12,27 +12,36 @@ namespace JusticeScale.Scripts.UI
 
         [SerializeField] private bool isInPounds;
 
+        private bool hasCleared = false; // ✅ 一度だけ加算するためのフラグ
+
         private void Awake()
         {
-            // Automatically get the TriggerScale component attached to the parent GameObject
             if (scale == null) scale = GetComponentInParent<TriggerScale>();
-
-            // Automatically get the Text component attached to the child GameObject
             if (balanceText == null) balanceText = GetComponentInChildren<Text>();
         }
 
         private void Update()
         {
-            // Update the balance text based on the selected unit
-            balanceText.text = isInPounds 
-                ? $"{ConvertKgToPound(scale.TotalWeight)} pounds" 
-                : $"{scale.TotalWeight} kg";
+            float weight = scale.TotalWeight;
+
+            // 表示更新
+            balanceText.text = isInPounds
+                ? $"{ConvertKgToPound(weight)} pounds"
+                : $"{weight} kg";
+
+            // ✅ 重さが7になったときに一度だけカウント追加
+            if (!hasCleared && Mathf.Approximately(weight, 7f))
+            {
+                hasCleared = true;
+                BlockPlacementChecker.clearCount++;
+                Debug.Log("Weight reached 7kg — clearCount increased!");
+            }
         }
 
         private float ConvertKgToPound(float massKg)
         {
             var poundConverse = massKg * 2.20f;
-            return (float)Math.Round(poundConverse, 2); // Round to 2 decimal places
+            return (float)Math.Round(poundConverse, 2);
         }
     }
 }
