@@ -12,7 +12,16 @@ public class BlockPlacementChecker : MonoBehaviour
     public float positionTolerance = 0.05f;
     public float rotationTolerance = 5f;
 
+    public ParticleSystem clearEffectPrefab; // クリア時のエフェクト
+    public AudioClip clearSound;             // クリア時の効果音
+
     private bool isCleared = false;
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        audioSource = gameObject.AddComponent<AudioSource>();
+    }
 
     void Update()
     {
@@ -27,6 +36,12 @@ public class BlockPlacementChecker : MonoBehaviour
             {
                 isCleared = true;
                 Debug.Log("クリア！");
+
+                TriggerClearEffect(block1.position);
+                TriggerClearEffect(block2.position);
+
+                LockBlock(block1);
+                LockBlock(block2);
             }
         }
     }
@@ -41,14 +56,36 @@ public class BlockPlacementChecker : MonoBehaviour
         return posDiff <= positionTolerance && rotDiff <= rotationTolerance;
     }
 
+    private void TriggerClearEffect(Vector3 position)
+    {
+        if (clearEffectPrefab != null)
+        {
+            Instantiate(clearEffectPrefab, position, Quaternion.identity);
+        }
+
+        if (clearSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(clearSound);
+        }
+    }
+
+    private void LockBlock(Transform block)
+    {
+        var rb = block.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
         if (block1 != null)
         {
-            // ブロック1の現在位置
             Gizmos.DrawSphere(block1.position, 0.025f);
-            // ブロック1のターゲット位置
             Gizmos.color = Color.red;
             Gizmos.DrawWireCube(targetPosition1, Vector3.one * 0.5f);
             Gizmos.DrawLine(block1.position, targetPosition1);
@@ -57,9 +94,7 @@ public class BlockPlacementChecker : MonoBehaviour
         Gizmos.color = Color.cyan;
         if (block2 != null)
         {
-            // ブロック2の現在位置
             Gizmos.DrawSphere(block2.position, 0.025f);
-            // ブロック2のターゲット位置
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireCube(targetPosition2, Vector3.one * 0.5f);
             Gizmos.DrawLine(block2.position, targetPosition2);
