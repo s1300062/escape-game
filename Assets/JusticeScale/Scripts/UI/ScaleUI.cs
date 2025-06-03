@@ -33,7 +33,7 @@ namespace JusticeScale.Scripts.UI
             if (!hasCleared && Mathf.Approximately(weight, 7f))
             {
                 hasCleared = true;
-                BlockPlacementChecker.clearCount++;
+                ClearChecker.clearCount++;
                 Debug.Log("Weight reached 7kg — clearCount increased!");
             }
         }
