@@ -1,6 +1,8 @@
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class BlockPlacementChecker : MonoBehaviour
+public class ClearChecker : MonoBehaviour
 {
     public Transform block1;
     public Transform block2;
@@ -27,7 +29,7 @@ public class BlockPlacementChecker : MonoBehaviour
         audioSource = gameObject.AddComponent<AudioSource>();
     }
 
-    
+
     void Update()
     {
         // ブロッククリア判定
@@ -123,3 +125,4 @@ public class BlockPlacementChecker : MonoBehaviour
         }
     }
 }
+
