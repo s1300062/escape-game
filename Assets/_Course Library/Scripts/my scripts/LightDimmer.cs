@@ -48,7 +48,7 @@ public class LightDimmer : MonoBehaviour
         lightComponent.intensity = Mathf.Lerp(initialIntensity, 0f, t);
 
         // 経過時間がdurationを超えたらシーン遷移（1回だけ）
-        if (!sceneLoaded && elapsedTime >= duration)
+        if (!sceneLoaded && elapsedTime-1f >= duration)
         {
             sceneLoaded = true; // 二重呼び出し防止
             SceneManager.LoadScene(sceneToLoad);

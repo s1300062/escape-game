@@ -7,17 +7,6 @@ public class SocketCollision : MonoBehaviour
 {
     public AudioSource socketSound;
     public AudioClip insertSound;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -28,11 +17,11 @@ public class SocketCollision : MonoBehaviour
             {
                 socketSound = gameObject.AddComponent<AudioSource>();
             }
-                }
-            if (socketSound != null)
-            {
-                socketSound.clip = insertSound;
-                socketSound.Play();
-            }
-        }   
-    }
+        }
+        if (socketSound != null)
+        {
+            socketSound.clip = insertSound;
+            socketSound.Play();
+        }
+    }   
+}
