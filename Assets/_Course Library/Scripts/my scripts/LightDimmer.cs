@@ -1,29 +1,25 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;  // シーン遷移に必要
+using UnityEngine.SceneManagement;
 
 public class LightDimmer : MonoBehaviour
 {
-    // 初期の光量（任意に設定可能）
     private float initialIntensity;
-
-    // 減衰にかける時間（秒）
     public float duration = 60f;
-
-    // 移動先のシーン名（インスペクターで設定）
     public string sceneToLoad = "game over";
-
-    // 経過時間を記録
     private float elapsedTime = 0f;
-
-    // Light コンポーネント参照
     private Light lightComponent;
-
-    // シーンが遷移されたかのフラグ
     private bool sceneLoaded = false;
+
+    // --- 追加パラメータ ---
+    public float maxIntensity = 2f;
+    public float increaseDuration = 5f;
+
+    private bool dimmingStopped = false;
+    private bool isIncreasing = false;
+    private float increaseTime = 0f;
 
     void Start()
     {
-        // Light コンポーネントを取得
         lightComponent = GetComponent<Light>();
         if (lightComponent == null)
         {
@@ -32,26 +28,41 @@ public class LightDimmer : MonoBehaviour
             return;
         }
 
-        // 初期の光量を保存
         initialIntensity = lightComponent.intensity;
     }
 
     void Update()
     {
-        // 時間を加算
-        elapsedTime += Time.deltaTime;
-
-        // 経過時間がdurationを超えないよう制限
-        float t = Mathf.Clamp01(elapsedTime / duration);
-
-        // 線形に光量を減少（0まで）
-        lightComponent.intensity = Mathf.Lerp(initialIntensity, 0f, t);
-
-        // 経過時間がdurationを超えたらシーン遷移（1回だけ）
-        if (!sceneLoaded && elapsedTime-1f >= duration)
+        if (!dimmingStopped && !isIncreasing)
         {
-            sceneLoaded = true; // 二重呼び出し防止
-            SceneManager.LoadScene(sceneToLoad);
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
+            lightComponent.intensity = Mathf.Lerp(initialIntensity, 0f, t);
+
+            if (!sceneLoaded && elapsedTime - 1f >= duration)
+            {
+                sceneLoaded = true;
+                SceneManager.LoadScene(sceneToLoad);
+            }
         }
+        else if (isIncreasing)
+        {
+            increaseTime += Time.deltaTime;
+            float t = Mathf.Clamp01(increaseTime / increaseDuration);
+            lightComponent.intensity = Mathf.Lerp(lightComponent.intensity, maxIntensity, t);
+
+            if (t >= 1f)
+            {
+                isIncreasing = false;
+            }
+        }
+    }
+
+    // --- ソケットから呼び出されるメソッド ---
+    public void TriggerLightIncrease()
+    {
+        dimmingStopped = true;
+        isIncreasing = true;
+        increaseTime = 0f;
     }
 }
